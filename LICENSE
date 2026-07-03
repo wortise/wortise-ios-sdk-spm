@@ -1,0 +1,15 @@
+Copyright Wortise. All rights reserved.
+
+The Wortise SDK and all accompanying materials are proprietary software of
+Wortise. Use is governed by the terms of your Wortise publisher agreement.
+
+No part of the SDK, this Swift Package Manager manifest, or any related
+materials may be reproduced, redistributed, modified, decompiled,
+disassembled, reverse engineered, or otherwise used except as expressly
+permitted by Wortise in writing or as required by applicable law.
+
+THE SDK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+WORTISE BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM
+THE USE OF THE SDK.
