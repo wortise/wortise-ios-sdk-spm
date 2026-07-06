@@ -9,8 +9,10 @@
 //   3. Commit and tag this repo with the same version (e.g. `1.8.0`).
 //
 // The WortiseSDK binary does NOT embed Google Mobile Ads — it references GMA at
-// runtime, so the consumer links it. The `WortiseSDKGoogleMobileAds` target below
-// makes the core product pull GMA in at the version the binary was built against.
+// runtime, so the consumer links it. The core `WortiseSDK` product bundles every
+// mediation adapter (mirroring the CocoaPods podspec); the adapters pull in Google
+// Mobile Ads transitively, so no separate GMA target is needed. Apps that want a
+// subset can depend on the individual `WortiseSDK<Network>` products instead.
 //
 // Mediation-adapter packages are Google's official per-adapter SPM repos:
 //   https://github.com/googleads/googleads-mobile-ios-mediation-<partner>
@@ -21,9 +23,9 @@
 
 import PackageDescription
 
-private let version              = "1.8.0-beta.2"
+private let version              = "1.8.0-beta.3"
 private let binaryTargetUrl      = "https://cdn.resources.wortise.com/sdk/ios/wortise-ios-sdk-spm-\(version).zip"
-private let binaryTargetChecksum = "2fd46026eae46cab7d43399d59e0d886b98040e51031ebf9e1e63fdfdc7c636c"
+private let binaryTargetChecksum = "820faf0c75c7412cf02e4dac277d950ddef8880688fd0ea231544acd93e791d4"
 
 let package = Package(
     name: "WortiseSDK",
@@ -31,7 +33,18 @@ let package = Package(
         .iOS(.v13)
     ],
     products: [
-        .library(name: "WortiseSDK",             targets: ["WortiseSDK", "WortiseSDKGoogleMobileAds"]),
+        // Default product — mirrors the CocoaPods pod: the SDK plus every adapter.
+        .library(name: "WortiseSDK", targets: [
+            "WortiseSDK",
+            "WortiseSDKFacebook",
+            "WortiseSDKFyber",
+            "WortiseSDKInMobi",
+            "WortiseSDKIronSource",
+            "WortiseSDKPangle",
+            "WortiseSDKUnity",
+            "WortiseSDKVungle"
+        ]),
+        // Granular products for the rare app that wants only a subset of adapters.
         .library(name: "WortiseSDKFacebook",     targets: ["WortiseSDKFacebook"]),
         .library(name: "WortiseSDKFyber",        targets: ["WortiseSDKFyber"]),
         .library(name: "WortiseSDKInMobi",       targets: ["WortiseSDKInMobi"]),
@@ -41,7 +54,6 @@ let package = Package(
         .library(name: "WortiseSDKVungle",       targets: ["WortiseSDKVungle"])
     ],
     dependencies: [
-        .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads.git",     from: "13.4.0"),
         .package(url: "https://github.com/googleads/googleads-mobile-ios-mediation-meta.git",            from: "6.21.0"),
         .package(url: "https://github.com/googleads/googleads-mobile-ios-mediation-dtexchange.git",      from: "8.4.0"),
         .package(url: "https://github.com/googleads/googleads-mobile-ios-mediation-inmobi.git",          from: "11.3.0"),
@@ -58,17 +70,6 @@ let package = Package(
             name:     "WortiseSDK",
             url:      binaryTargetUrl,
             checksum: binaryTargetChecksum
-        ),
-        // The WortiseSDK binary no longer embeds Google Mobile Ads; it references
-        // GMA symbols that are resolved at runtime from the app's single copy.
-        // This target makes the core `WortiseSDK` product pull in Google Mobile
-        // Ads (matching the version the binary was built against) so the SDK works
-        // without the app having to declare the dependency separately.
-        .target(
-            name: "WortiseSDKGoogleMobileAds",
-            dependencies: [
-                .product(name: "GoogleMobileAds", package: "swift-package-manager-google-mobile-ads")
-            ]
         ),
         .target(
             name: "WortiseSDKFacebook",
