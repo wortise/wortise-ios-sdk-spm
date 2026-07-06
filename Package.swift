@@ -8,17 +8,22 @@
 //   2. Update `version`, `binaryTargetUrl`, and `binaryTargetChecksum` below.
 //   3. Commit and tag this repo with the same version (e.g. `1.8.0`).
 //
-// Mediation-adapter package URLs and library product names below mirror Google's
-// official Swift Package Manager publications. Verify them against Google's
-// current Swift Package distribution docs at release time:
-// https://developers.google.com/admob/ios/mediation
+// The WortiseSDK binary does NOT embed Google Mobile Ads — it references GMA at
+// runtime, so the consumer links it. The `WortiseSDKGoogleMobileAds` target below
+// makes the core product pull GMA in at the version the binary was built against.
+//
+// Mediation-adapter packages are Google's official per-adapter SPM repos:
+//   https://github.com/googleads/googleads-mobile-ios-mediation-<partner>
+// Product names are "<Partner>AdapterTarget". Each adapter versions independently
+// (tracking its partner SDK) but pins google-mobile-ads to the same 13.x line.
+// Verify against https://developers.google.com/admob/ios/mediation at release time.
 //
 
 import PackageDescription
 
-private let version              = "1.8.0-beta.1"
+private let version              = "1.8.0-beta.2"
 private let binaryTargetUrl      = "https://cdn.resources.wortise.com/sdk/ios/wortise-ios-sdk-spm-\(version).zip"
-private let binaryTargetChecksum = "6da0b2ee10cdd07ed1aeb0ce220f1e2f3e60374e8a58ee22c30142018af9a55b"
+private let binaryTargetChecksum = "2fd46026eae46cab7d43399d59e0d886b98040e51031ebf9e1e63fdfdc7c636c"
 
 let package = Package(
     name: "WortiseSDK",
@@ -26,7 +31,7 @@ let package = Package(
         .iOS(.v13)
     ],
     products: [
-        .library(name: "WortiseSDK",             targets: ["WortiseSDK"]),
+        .library(name: "WortiseSDK",             targets: ["WortiseSDK", "WortiseSDKGoogleMobileAds"]),
         .library(name: "WortiseSDKFacebook",     targets: ["WortiseSDKFacebook"]),
         .library(name: "WortiseSDKFyber",        targets: ["WortiseSDKFyber"]),
         .library(name: "WortiseSDKInMobi",       targets: ["WortiseSDKInMobi"]),
@@ -36,14 +41,17 @@ let package = Package(
         .library(name: "WortiseSDKVungle",       targets: ["WortiseSDKVungle"])
     ],
     dependencies: [
-        .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads.git",                          from: "12.4.0"),
-        .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads-mediation-meta.git",           from: "1.0.0"),
-        .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads-mediation-dtexchange.git",     from: "1.0.0"),
-        .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads-mediation-inmobi.git",         from: "1.0.0"),
-        .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads-mediation-ironsource.git",     from: "1.0.0"),
-        .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads-mediation-pangle.git",         from: "1.0.0"),
-        .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads-mediation-unity.git",          from: "1.0.0"),
-        .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads-mediation-vungle.git",         from: "1.0.0")
+        .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads.git",     from: "13.4.0"),
+        .package(url: "https://github.com/googleads/googleads-mobile-ios-mediation-meta.git",            from: "6.21.0"),
+        .package(url: "https://github.com/googleads/googleads-mobile-ios-mediation-dtexchange.git",      from: "8.4.0"),
+        .package(url: "https://github.com/googleads/googleads-mobile-ios-mediation-inmobi.git",          from: "11.3.0"),
+        .package(url: "https://github.com/googleads/googleads-mobile-ios-mediation-ironsource.git",      from: "9.4.0"),
+        // Pin Pangle to the 8.1.x line: the current 8.2.x adapter pins a ByteDance
+        // AdsGlobalPackage pre-release (8.2.0-beta.3) that does not exist, breaking
+        // resolution. 8.1.00600 pins the published 8.1.0-release.6 and GMA 13.3+.
+        .package(url: "https://github.com/googleads/googleads-mobile-ios-mediation-pangle.git",          "8.1.0" ..< "8.2.0"),
+        .package(url: "https://github.com/googleads/googleads-mobile-ios-mediation-unity.git",           from: "4.19.0"),
+        .package(url: "https://github.com/googleads/googleads-mobile-ios-mediation-liftoffmonetize.git", from: "7.7.0")
     ],
     targets: [
         .binaryTarget(
@@ -51,53 +59,64 @@ let package = Package(
             url:      binaryTargetUrl,
             checksum: binaryTargetChecksum
         ),
+        // The WortiseSDK binary no longer embeds Google Mobile Ads; it references
+        // GMA symbols that are resolved at runtime from the app's single copy.
+        // This target makes the core `WortiseSDK` product pull in Google Mobile
+        // Ads (matching the version the binary was built against) so the SDK works
+        // without the app having to declare the dependency separately.
+        .target(
+            name: "WortiseSDKGoogleMobileAds",
+            dependencies: [
+                .product(name: "GoogleMobileAds", package: "swift-package-manager-google-mobile-ads")
+            ]
+        ),
         .target(
             name: "WortiseSDKFacebook",
             dependencies: [
                 "WortiseSDK",
-                .product(name: "MetaAdapter", package: "swift-package-manager-google-mobile-ads-mediation-meta")
+                .product(name: "MetaAdapterTarget", package: "googleads-mobile-ios-mediation-meta")
             ]
         ),
         .target(
             name: "WortiseSDKFyber",
             dependencies: [
                 "WortiseSDK",
-                .product(name: "DTExchangeAdapter", package: "swift-package-manager-google-mobile-ads-mediation-dtexchange")
+                .product(name: "DTExchangeAdapterTarget", package: "googleads-mobile-ios-mediation-dtexchange")
             ]
         ),
         .target(
             name: "WortiseSDKInMobi",
             dependencies: [
                 "WortiseSDK",
-                .product(name: "InMobiAdapter", package: "swift-package-manager-google-mobile-ads-mediation-inmobi")
+                .product(name: "InMobiAdapterTarget", package: "googleads-mobile-ios-mediation-inmobi")
             ]
         ),
         .target(
             name: "WortiseSDKIronSource",
             dependencies: [
                 "WortiseSDK",
-                .product(name: "IronSourceAdapter", package: "swift-package-manager-google-mobile-ads-mediation-ironsource")
+                .product(name: "IronSourceAdapterTarget", package: "googleads-mobile-ios-mediation-ironsource")
             ]
         ),
         .target(
             name: "WortiseSDKPangle",
             dependencies: [
                 "WortiseSDK",
-                .product(name: "PangleAdapter", package: "swift-package-manager-google-mobile-ads-mediation-pangle")
+                .product(name: "PangleAdapterTarget", package: "googleads-mobile-ios-mediation-pangle")
             ]
         ),
         .target(
             name: "WortiseSDKUnity",
             dependencies: [
                 "WortiseSDK",
-                .product(name: "UnityAdapter", package: "swift-package-manager-google-mobile-ads-mediation-unity")
+                .product(name: "UnityAdapterTarget", package: "googleads-mobile-ios-mediation-unity")
             ]
         ),
         .target(
             name: "WortiseSDKVungle",
             dependencies: [
                 "WortiseSDK",
-                .product(name: "VungleAdapter", package: "swift-package-manager-google-mobile-ads-mediation-vungle")
+                .product(name: "LiftoffMonetizeAdapterTarget", package: "googleads-mobile-ios-mediation-liftoffmonetize")
             ]
         )
     ]
