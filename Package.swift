@@ -23,9 +23,10 @@
 
 import PackageDescription
 
-private let version              = "1.8.0-beta.5"
+private let version              = "1.8.0-beta.6"
 private let binaryTargetUrl      = "https://cdn.resources.wortise.com/sdk/ios/wortise-ios-sdk-spm-\(version).zip"
-private let binaryTargetChecksum = "131dda7b2ccc7f519ea6e3005da2aa0d4544c8d0299115668b2084813c4feb51"
+// TODO(beta.6): replace with the checksum printed by `upload.sh 1.8.0-beta.6`, then commit + tag.
+private let binaryTargetChecksum = "91b8d3a8d1c873a92ef604e4adb2c8654f0ca1ac37844e8f8f4a1f536beec655"
 
 let package = Package(
     name: "WortiseSDK",
