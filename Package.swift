@@ -29,14 +29,14 @@
 
 import PackageDescription
 
-private let version              = "1.8.0"
+private let version              = "1.8.1"
 private let binaryTargetUrl      = "https://cdn.resources.wortise.com/sdk/ios/wortise-ios-sdk-spm-\(version).zip"
-private let binaryTargetChecksum = "884be1a4bc072fa2b36a3576979a964d073cea540452db7ebf79a4f39fdbcba4"
+private let binaryTargetChecksum = "0b8ea9e68d9cc6cc44efa150b82773db4c3d2c30c50b9f8c7223bb6439513819"
 
 let package = Package(
     name: "WortiseSDK",
     platforms: [
-        .iOS(.v13)
+        .iOS(.v15)
     ],
     products: [
         // Default product — mirrors the CocoaPods pod: the SDK plus every GMA adapter.
