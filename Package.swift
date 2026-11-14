@@ -2,11 +2,8 @@
 //
 // Wortise SDK — Swift Package Manager manifest.
 //
-// On every release:
-//   1. Run `./package.sh <version>` and `./upload.sh <version>` from the private
-//      build repo. The `upload.sh` script prints the SPM url + checksum.
-//   2. Update `version`, `binaryTargetUrl`, and `binaryTargetChecksum` below.
-//   3. Commit and tag this repo with the same version (e.g. `1.8.0`).
+// Releases are automated: wortise-ios-sdk/scripts/publish.sh rewrites `version` and
+// `binaryTargetChecksum` below (keep those line prefixes), commits and tags this repo.
 //
 // The WortiseSDK binary does NOT embed Google Mobile Ads — it references GMA at
 // runtime, so the consumer links it. The default `WortiseSDK` product bundles the
