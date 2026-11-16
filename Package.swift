@@ -26,9 +26,9 @@
 
 import PackageDescription
 
-private let version              = "1.8.1"
+private let version              = "1.8.2-beta.1"
 private let binaryTargetUrl      = "https://cdn.resources.wortise.com/sdk/ios/wortise-ios-sdk-spm-\(version).zip"
-private let binaryTargetChecksum = "0b8ea9e68d9cc6cc44efa150b82773db4c3d2c30c50b9f8c7223bb6439513819"
+private let binaryTargetChecksum = "2fb01a2629f05b6ae4f1844abf7a460522fc591cce21bd2701ac70cc50d895ce"
 
 let package = Package(
     name: "WortiseSDK",
